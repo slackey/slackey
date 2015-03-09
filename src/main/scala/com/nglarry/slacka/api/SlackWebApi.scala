@@ -1,10 +1,11 @@
 package com.nglarry.slacka.api
 
-import com.nglarry.slacka.codecs._
-import com.nglarry.slacka.codecs.responses._
 import com.ning.http.client._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
+
+import com.nglarry.slacka.codecs._
+import com.nglarry.slacka.codecs.responses._
 
 object SlackWebApi {
   def defaultHttpClientConfig =
@@ -22,7 +23,7 @@ object SlackWebApi {
 class SlackWebApi(
     token: String,
     clientConfig: AsyncHttpClientConfig = SlackWebApi.defaultHttpClientConfig) {
-  import SlackWebApi._
+  import com.nglarry.slacka.api.SlackWebApi._
 
   val client: AsyncHttpClient = new AsyncHttpClient(clientConfig)
 

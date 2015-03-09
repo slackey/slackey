@@ -1,18 +1,19 @@
 package com.nglarry.slacka.bot
 
+import scala.concurrent.duration._
+import scala.util.{Failure, Success}
+
 import akka.actor._
 import akka.routing.RoundRobinPool
+import com.ning.http.client.AsyncHttpClientConfig
+import com.ning.http.client.ws.{WebSocket, WebSocketTextListener}
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+
 import com.nglarry.slacka.api.{SlackError, SlackResponseHandler, SlackWebApi, SlackWebSocketApi}
 import com.nglarry.slacka.codecs.responses.RtmStart
 import com.nglarry.slacka.codecs.{isHello, isReply}
 import com.nglarry.slacka.util.randomReplyId
-import com.ning.http.client.AsyncHttpClientConfig
-import com.ning.http.client.ws.{WebSocketTextListener, WebSocket}
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
-
-import scala.concurrent.duration._
-import scala.util.{Failure, Success}
 
 object Slacka {
   val DefaultNrWorkers = 4
@@ -48,8 +49,8 @@ class Slacka(
     listeners: List[RealTimeMessagingListener],
     workerCount: Int,
     pingInterval: FiniteDuration) extends SlackaActor {
-  import Slacka._
-  import BotMessages._
+  import com.nglarry.slacka.bot.BotMessages._
+  import com.nglarry.slacka.bot.Slacka._
 
   val system = context.system
   import system.dispatcher

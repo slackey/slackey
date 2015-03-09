@@ -1,8 +1,8 @@
 package com.nglarry.slacka
 
 import org.json4s._
-import org.json4s.jackson.Serialization
 import org.json4s.jackson.JsonMethods.parse
+import org.json4s.jackson.Serialization
 
 package object codecs {
   implicit val formats = Serialization.formats(NoTypeHints)

@@ -1,10 +1,11 @@
 package com.nglarry.slacka.bot
 
-import com.nglarry.slacka.codecs.responses.RtmStart
-import com.nglarry.slacka.codecs.types._
-import com.nglarry.slacka.codecs.extract
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
+
+import com.nglarry.slacka.codecs.extract
+import com.nglarry.slacka.codecs.responses.RtmStart
+import com.nglarry.slacka.codecs.types._
 
 object SlackState {
   def apply(start: RtmStart): SlackState =

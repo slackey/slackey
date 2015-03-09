@@ -1,7 +1,8 @@
 package com.nglarry.slacka.bot
 
-import com.nglarry.slacka.codecs.responses.RtmStart
 import org.json4s._
+
+import com.nglarry.slacka.codecs.responses.RtmStart
 
 object BotMessages {
   case class Connect(attempt: Int)

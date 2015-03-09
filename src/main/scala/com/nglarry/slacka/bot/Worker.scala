@@ -1,11 +1,12 @@
 package com.nglarry.slacka.bot
 
-import com.nglarry.slacka.codecs.types.Message
-import com.nglarry.slacka.codecs.{extract, isReply}
 import org.json4s._
 
+import com.nglarry.slacka.codecs.types.Message
+import com.nglarry.slacka.codecs.{extract, isReply}
+
 class Worker(listeners: List[RealTimeMessagingListener]) extends SlackaActor {
-  import BotMessages._
+  import com.nglarry.slacka.bot.BotMessages._
 
   override def receive: Receive = {
     case Connected(state) =>

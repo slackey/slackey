@@ -1,12 +1,12 @@
 package com.nglarry.slacka.api
 
-import com.ning.http.client.{AsyncHttpClient, AsyncHttpClientConfig}
+import scala.util.Try
+
 import com.ning.http.client.ws.{WebSocket, WebSocketTextListener, WebSocketUpgradeHandler}
+import com.ning.http.client.{AsyncHttpClient, AsyncHttpClientConfig}
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-
-import scala.util.Try
 
 object SlackWebSocketApi {
   def defaultHttpClientConfig =

@@ -2,11 +2,12 @@ package com.nglarry.slacka.examples
 
 import java.util.concurrent.Executors
 
+import scala.io.StdIn
+
 import akka.actor.ActorSystem
-import com.nglarry.slacka.bot.Slacka
 import com.ning.http.client.AsyncHttpClientConfig
 
-import scala.io.StdIn
+import com.nglarry.slacka.bot.Slacka
 
 object Demo {
 

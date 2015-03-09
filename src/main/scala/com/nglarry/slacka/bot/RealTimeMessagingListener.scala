@@ -1,10 +1,11 @@
 package com.nglarry.slacka.bot
 
-import com.nglarry.slacka.codecs.types.Message
 import org.json4s._
 
+import com.nglarry.slacka.codecs.types.Message
+
 trait RealTimeMessagingListener {
-  import BotMessages._
+  import com.nglarry.slacka.bot.BotMessages._
 
   def onConnected(state: SlackState): Seq[SendMessage] = Seq.empty
   def onDisconnected(state: SlackState): Seq[SendMessage] = Seq.empty
