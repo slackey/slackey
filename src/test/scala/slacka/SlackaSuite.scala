@@ -1,9 +1,10 @@
 package slacka
 
+import org.scalatest.FunSuite
+
 import com.nglarry.slacka.bot.SlackState
 import com.nglarry.slacka.codecs.extract
 import com.nglarry.slacka.codecs.types._
-import org.scalatest.FunSuite
 
 trait SlackaSuite extends FunSuite {
   val testUser = extract[User](
