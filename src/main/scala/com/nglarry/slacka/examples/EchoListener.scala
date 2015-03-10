@@ -2,7 +2,7 @@ package com.nglarry.slacka.examples
 
 import org.json4s._
 
-import com.nglarry.slacka.bot.{BotMessages, RealTimeMessagingListener, SlackState}
+import com.nglarry.slacka.bot.{RealTimeMessagingListener, SlackState}
 import com.nglarry.slacka.codecs.types.Message
 import com.nglarry.slacka.util.randomReplyId
 
