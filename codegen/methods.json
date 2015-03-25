@@ -1,0 +1,933 @@
+[
+  {
+    "method": "auth.test",
+    "args": [],
+    "fields": [
+      {
+        "name": "url",
+        "type": "String"
+      },
+      {
+        "name": "team",
+        "type": "String"
+      },
+      {
+        "name": "user",
+        "type": "String"
+      },
+      {
+        "name": "team_id",
+        "type": "String"
+      },
+      {
+        "name": "user_id",
+        "type": "String"
+      }
+    ]
+  },
+  {
+    "method": "channels.archive",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": []
+  },
+  {
+    "method": "channels.create",
+    "args": [
+      {
+        "name": "name",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "channel",
+        "type": "Channel"
+      }
+    ]
+  },
+  {
+    "method": "channels.history",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "latest",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "oldest",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "inclusive",
+        "type": "Boolean",
+        "as_int": true,
+        "required": false
+      },
+      {
+        "name": "count",
+        "type": "Int",
+        "required": false
+      }
+    ],
+    "fields": [
+      {
+        "name": "latest",
+        "type": "String"
+      },
+      {
+        "name": "messages",
+        "type": "List[Message]"
+      },
+      {
+        "name": "has_more",
+        "type": "Boolean"
+      }
+    ]
+  },
+  {
+    "method": "channels.info",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "channel",
+        "type": "Channel"
+      }
+    ]
+  },
+  {
+    "method": "channels.invite",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "user",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "channel",
+        "type": "Channel"
+      }
+    ]
+  },
+  {
+    "method": "channels.join",
+    "args": [
+      {
+        "name": "name",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "channel",
+        "type": "Channel"
+      },
+      {
+        "name": "already_in_channel",
+        "type": "Option[Boolean]"
+      }
+    ]
+  },
+  {
+    "method": "channels.kick",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "user",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": []
+  },
+  {
+    "method": "channels.leave",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "not_in_channel",
+        "type": "Option[Boolean]"
+      }
+    ]
+  },
+  {
+    "method": "channels.list",
+    "args": [
+      {
+        "name": "exclude_archived",
+        "type": "String",
+        "required": false
+      }
+    ],
+    "fields": [
+      {
+        "name": "channels",
+        "type": "List[Channel]"
+      }
+    ]
+  },
+  {
+    "method": "channels.mark",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "ts",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": []
+  },
+  {
+    "method": "channels.rename",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "name",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "channel",
+        "type": "Channel"
+      }
+    ]
+  },
+  {
+    "method": "channels.setPurpose",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "purpose",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "purpose",
+        "type": "String"
+      }
+    ]
+  },
+  {
+    "method": "channels.setTopic",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "topic",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "topic",
+        "type": "String"
+      }
+    ]
+  },
+  {
+    "method": "channels.unarchive",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": []
+  },
+  {
+    "method": "chat.delete",
+    "args": [
+      {
+        "name": "ts",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "channel",
+        "type": "String"
+      },
+      {
+        "name": "ts",
+        "type": "String"
+      }
+    ]
+  },
+  {
+    "method": "chat.postMessage",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "text",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "username",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "as_user",
+        "type": "Boolean",
+        "required": false
+      },
+      {
+        "name": "parse",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "link_names",
+        "type": "Boolean",
+        "as_int": true,
+        "required": false
+      },
+      {
+        "name": "attachments",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "unfurl_links",
+        "type": "Boolean",
+        "required": false
+      },
+      {
+        "name": "unfurl_media",
+        "type": "Boolean",
+        "required": false
+      },
+      {
+        "name": "icon_url",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "icon_emoji",
+        "type": "String",
+        "required": false
+      }
+    ],
+    "fields": [
+      {
+        "name": "ts",
+        "type": "String"
+      },
+      {
+        "name": "channel",
+        "type": "String"
+      },
+      {
+        "name": "message",
+        "type": "Message"
+      }
+    ]
+  },
+  {
+    "method": "chat.update",
+    "args": [
+      {
+        "name": "ts",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "text",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "channel",
+        "type": "String"
+      },
+      {
+        "name": "ts",
+        "type": "String"
+      },
+      {
+        "name": "text",
+        "type": "String"
+      }
+    ]
+  },
+  {
+    "method": "emoji.list",
+    "args": [],
+    "fields": [
+      {
+        "name": "emoji",
+        "type": "JObject"
+      }
+    ]
+  },
+  {
+    "method": "groups.archive",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": []
+  },
+  {
+    "method": "groups.close",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": []
+  },
+  {
+    "method": "groups.create",
+    "args": [
+      {
+        "name": "name",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "group",
+        "type": "Group"
+      }
+    ]
+  },
+  {
+    "method": "groups.createChild",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "group",
+        "type": "Group"
+      }
+    ]
+  },
+  {
+    "method": "groups.history",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "latest",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "oldest",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "inclusive",
+        "type": "Boolean",
+        "as_int": true,
+        "required": false
+      },
+      {
+        "name": "count",
+        "type": "Int",
+        "required": false
+      }
+    ],
+    "fields": [
+      {
+        "name": "latest",
+        "type": "String"
+      },
+      {
+        "name": "messages",
+        "type": "List[Message]"
+      },
+      {
+        "name": "has_more",
+        "type": "Boolean"
+      }
+    ]
+  },
+  {
+    "method": "groups.invite",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "user",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "group",
+        "type": "Group",
+        "already_in_group": "Option[Boolean]"
+      }
+    ]
+  },
+  {
+    "method": "groups.kick",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "user",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": []
+  },
+  {
+    "method": "groups.leave",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": []
+  },
+  {
+    "method": "groups.list",
+    "args": [
+      {
+        "name": "exclude_archived",
+        "type": "String",
+        "required": false
+      }
+    ],
+    "fields": [
+      {
+        "name": "groups",
+        "type": "List[Group]"
+      }
+    ]
+  },
+  {
+    "method": "groups.mark",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "ts",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": []
+  },
+  {
+    "method": "groups.open",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "no_op",
+        "type": "Option[Boolean]"
+      },
+      {
+        "name": "already_open",
+        "type": "Option[Boolean]"
+      }
+    ]
+  },
+  {
+    "method": "groups.rename",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "name",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "channel",
+        "type": "Group"
+      }
+    ]
+  },
+  {
+    "method": "groups.setPurpose",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "purpose",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "purpose",
+        "type": "String"
+      }
+    ]
+  },
+  {
+    "method": "groups.setTopic",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "topic",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "topic",
+        "type": "String"
+      }
+    ]
+  },
+  {
+    "method": "groups.unarchive",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": []
+  },
+  {
+    "method": "im.close",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "no_op",
+        "type": "Option[Boolean]"
+      },
+      {
+        "name": "already_closed",
+        "type": "Option[Boolean]"
+      }
+    ]
+  },
+  {
+    "method": "im.history",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "latest",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "oldest",
+        "type": "String",
+        "required": false
+      },
+      {
+        "name": "inclusive",
+        "type": "Boolean",
+        "as_int": true,
+        "required": false
+      },
+      {
+        "name": "count",
+        "type": "Int",
+        "required": false
+      }
+    ],
+    "fields": [
+      {
+        "name": "latest",
+        "type": "String"
+      },
+      {
+        "name": "messages",
+        "type": "List[Message]"
+      },
+      {
+        "name": "has_more",
+        "type": "Boolean"
+      }
+    ]
+  },
+  {
+    "method": "im.list",
+    "args": [],
+    "fields": [
+      {
+        "name": "ims",
+        "type": "List[IM]"
+      }
+    ]
+  },
+  {
+    "method": "im.mark",
+    "args": [
+      {
+        "name": "channel",
+        "type": "String",
+        "required": true
+      },
+      {
+        "name": "ts",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": []
+  },
+  {
+    "method": "im.open",
+    "args": [
+      {
+        "name": "user",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "channel",
+        "type": "Channel"
+      }
+    ]
+  },
+  {
+    "method": "rtm.start",
+    "args": [],
+    "fields": [
+      {
+        "name": "url",
+        "type": "String"
+      },
+      {
+        "name": "self",
+        "type": "Self"
+      },
+      {
+        "name": "team",
+        "type": "Team"
+      },
+      {
+        "name": "users",
+        "type": "List[User]"
+      },
+      {
+        "name": "channels",
+        "type": "List[Channel]"
+      },
+      {
+        "name": "groups",
+        "type": "List[Group]"
+      },
+      {
+        "name": "ims",
+        "type": "List[IM]"
+      }
+    ]
+  },
+  {
+    "method": "users.getPresence",
+    "args": [
+      {
+        "name": "user",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "presence",
+        "type": "String"
+      },
+      {
+        "name": "online",
+        "type": "Option[Boolean]"
+      },
+      {
+        "name": "auto_away",
+        "type": "Option[Boolean]"
+      },
+      {
+        "name": "manual_away",
+        "type": "Option[Boolean]"
+      },
+      {
+        "name": "connection_count",
+        "type": "Option[Int]"
+      },
+      {
+        "name": "last_activity",
+        "type": "Option[Long]"
+      }
+
+    ]
+  },
+  {
+    "method": "users.info",
+    "args": [
+      {
+        "name": "user",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": [
+      {
+        "name": "user",
+        "type": "User"
+      }
+    ]
+  },
+  {
+    "method": "users.list",
+    "args": [],
+    "fields": [
+      {
+        "name": "members",
+        "type": "List[User]"
+      }
+    ]
+  },
+  {
+    "method": "users.setActive",
+    "args": [],
+    "fields": []
+  },
+  {
+    "method": "users.setPresence",
+    "args": [
+      {
+        "name": "presence",
+        "type": "String",
+        "required": true
+      }
+    ],
+    "fields": []
+  }
+]
