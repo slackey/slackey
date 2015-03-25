@@ -24,7 +24,7 @@ case class SlackState(
   lazy val groupById: Map[String, Group] = groups.iterator.map(g => g.id -> g).toMap
   lazy val imById: Map[String, IM] = ims.iterator.map(i => i.id -> i).toMap
   lazy val userSelf: User = userById(self.id)
-  lazy val channelsIn: List[Channel] = channels.filter(_.is_member)
+  lazy val channelsIn: List[Channel] = channels.filter(_.is_member == Some(true))
 
   def update(s: String): SlackState =
     update(parse(s).asInstanceOf[JObject])
@@ -37,11 +37,11 @@ case class SlackState(
         message.subtype match {
           case Some("channel_join") =>
             updateChannel(message.channel) { oldChannel =>
-              oldChannel.copy(members = oldChannel.members + message.user)
+              oldChannel.copy(members = Some(oldChannel.members.getOrElse(Set.empty) + message.user))
             }
           case Some("channel_leave") =>
             updateChannel(message.channel) { oldChannel =>
-              oldChannel.copy(members = oldChannel.members - message.user)
+              oldChannel.copy(members = Some(oldChannel.members.getOrElse(Set.empty) - message.user))
             }
           case Some("channel_topic") =>
             val newTopic = Topic(message.topic.getOrElse(""), message.user, message.ts.toDouble.toLong)
@@ -52,9 +52,9 @@ case class SlackState(
           case Some("channel_name") =>
             updateChannel(message.channel) { _.copy(name = message.name.getOrElse("")) }
           case Some("channel_archive") =>
-            updateChannel(message.channel) { _.copy(is_archived = true) }
+            updateChannel(message.channel) { _.copy(is_archived = Some(true)) }
           case Some("channel_unarchive") =>
-            updateChannel(message.channel) { _.copy(is_archived = false) }
+            updateChannel(message.channel) { _.copy(is_archived = Some(false)) }
           case _ =>
             this
         }
@@ -65,13 +65,7 @@ case class SlackState(
           ("ts", JString(ts)) <- fields
         } yield updateChannel(channelId) { _.copy(last_read = Some(ts)) }).head
       case "channel_created" =>
-        val channel = (for {
-          JObject(fields) <- json
-          ("id", JString(id)) <- fields
-          ("name", JString(name)) <- fields
-          ("created", JInt(created)) <- fields
-          ("creator", JString(creator)) <- fields
-        } yield Channel(id, name, true, created.toLong, creator, false, false, Set.empty, false)).head
+        val channel = extract[Channel](json \ "channel")
         if (channelById.contains(channel.id)) this else copy(channels = channels :+ channel)
       case "channel_joined" =>
         val channel = extract[Channel](json \ "channel")
@@ -83,21 +77,19 @@ case class SlackState(
         }
       case "channel_left" =>
         val JString(channelId) = json \ "channel"
-        updateChannel(channelId) { _.copy(is_member = false) }
+        updateChannel(channelId) { _.copy(is_member = Some(false)) }
       case "channel_deleted" =>
         val JString(channelId) = json \ "channel"
         copy(channels = channels.filter(_.id != channelId))
       case "channel_rename" =>
-        val JString(channelId) = json \ "channel" \ "id"
-        val JString(newName) = json \ "channel" \ "name"
-        updateChannel(channelId) { _.copy(name = newName)
-        }
+        val channel = extract[Channel](json \ "channel")
+        updateChannel(channel.id) { _.copy(name = channel.name) }
       case "channel_archive" =>
         val JString(channelId) = json \ "channel"
-        updateChannel(channelId) { _.copy(is_archived = true) }
+        updateChannel(channelId) { _.copy(is_archived = Some(true)) }
       case "channel_unarchive" =>
         val JString(channelId) = json \ "channel"
-        updateChannel(channelId) { _.copy(is_archived = false) }
+        updateChannel(channelId) { _.copy(is_archived = Some(false)) }
       case "im_created" =>
         val im = extract[IM](json \ "channel")
         copy(ims = ims :+ im)
@@ -127,20 +119,17 @@ case class SlackState(
         val JString(groupId) = json \ "channel"
         updateGroup(groupId) { _.copy(is_open = Some(false)) }
       case "group_rename" =>
-        val JString(groupId) = json \ "channel" \ "id"
-        val JString(newName) = json \ "channel" \ "name"
-        updateGroup(groupId) { oldGroup =>
-          oldGroup.copy(name = newName)
-        }
+        val group = extract[Group](json \ "channel")
+        updateGroup(group.id) { oldGroup => oldGroup.copy(name = group.name) }
       case "group_archive" =>
         val JString(groupId) = json \ "channel"
         updateGroup(groupId) { oldGroup =>
-          oldGroup.copy(is_archived = true)
+          oldGroup.copy(is_archived = Some(true))
         }
       case "group_unarchive" =>
         val JString(groupId) = json \ "channel"
         updateGroup(groupId) { oldGroup =>
-          oldGroup.copy(is_archived = false)
+          oldGroup.copy(is_archived = Some(false))
         }
       case "group_marked" =>
         (for {

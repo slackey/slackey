@@ -88,7 +88,7 @@ class SlackStateSpec extends SlackaSuite {
     assert(newState.channelById.get(newChan.id).isDefined)
 
     // leave new chan
-    val newState2 = newState.updateChannel(newChan.id) { _.copy(is_member = false) }
+    val newState2 = newState.updateChannel(newChan.id) { _.copy(is_member = Some(false)) }
 
     // test when channel exists in `channels` but not a member
     val newState3 = newState2.update(msg)
@@ -97,7 +97,7 @@ class SlackStateSpec extends SlackaSuite {
   }
 
   test("handles channel_left correctly") {
-    assert(testChannel.is_member === true)
+    assert(testChannel.is_member === Some(true))
     val msg =
       s"""
          |{
@@ -106,7 +106,7 @@ class SlackStateSpec extends SlackaSuite {
          |}
        """.stripMargin
     val newState = testState.update(msg)
-    assert(newState.channelById(testChannel.id).is_member === false)
+    assert(newState.channelById(testChannel.id).is_member === Some(false))
   }
 
   test("handles channel_deleted correctly") {
@@ -140,7 +140,7 @@ class SlackStateSpec extends SlackaSuite {
   }
 
   test("handles channel_archive correctly") {
-    assert(testChannel.is_archived === false)
+    assert(testChannel.is_archived === Some(false))
     val msg =
       s"""
          |{
@@ -150,12 +150,12 @@ class SlackStateSpec extends SlackaSuite {
          |}
        """.stripMargin
     val newState = testState.update(msg)
-    assert(newState.channelById(testChannel.id).is_archived === true)
+    assert(newState.channelById(testChannel.id).is_archived === Some(true))
   }
 
   test("handles channel_unarchive correctly") {
-    val state = testState.updateChannel(testChannel.id) { _.copy(is_archived = true) }
-    assert(state.channelById(testChannel.id).is_archived === true)
+    val state = testState.updateChannel(testChannel.id) { _.copy(is_archived = Some(true)) }
+    assert(state.channelById(testChannel.id).is_archived === Some(true))
     val msg =
       s"""
          |{
@@ -165,7 +165,7 @@ class SlackStateSpec extends SlackaSuite {
          |}
        """.stripMargin
     val newState = state.update(msg)
-    assert(newState.channelById(testChannel.id).is_archived === false)
+    assert(newState.channelById(testChannel.id).is_archived === Some(false))
   }
 
   test("handles im_create correctly") {
@@ -277,7 +277,7 @@ class SlackStateSpec extends SlackaSuite {
   }
 
   test("handles group_archive correctly") {
-    val state = testState.updateGroup(testGroup.id) { _.copy(is_archived = false) }
+    val state = testState.updateGroup(testGroup.id) { _.copy(is_archived = Some(false)) }
     val msg =
       s"""
          |{
@@ -286,11 +286,11 @@ class SlackStateSpec extends SlackaSuite {
          |}
        """.stripMargin
     val newState = state.update(msg)
-    assert(newState.groupById(testGroup.id).is_archived === true)
+    assert(newState.groupById(testGroup.id).is_archived === Some(true))
   }
 
   test("handles group_unarchive correctly") {
-    val state = testState.updateGroup(testGroup.id) { _.copy(is_archived = true) }
+    val state = testState.updateGroup(testGroup.id) { _.copy(is_archived = Some(true)) }
     val msg =
       s"""
          |{
@@ -299,7 +299,7 @@ class SlackStateSpec extends SlackaSuite {
          |}
        """.stripMargin
     val newState = state.update(msg)
-    assert(newState.groupById(testGroup.id).is_archived === false)
+    assert(newState.groupById(testGroup.id).is_archived === Some(false))
   }
 
   test("handles group_rename correctly") {
