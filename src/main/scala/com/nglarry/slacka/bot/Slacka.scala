@@ -72,8 +72,6 @@ class Slacka(
   val workers: ActorRef =
     context.actorOf(RoundRobinPool(workerCount).props(Props(classOf[Worker], listeners)), "workers")
 
-  var state: Option[SlackState] = None
-
   var pinger: Option[Cancellable] = None
 
   var connecter: Option[Cancellable] = None
@@ -93,19 +91,18 @@ class Slacka(
 
   private def connect(attempt: Int): Unit = attempt match {
     case 0 =>
-      self ! Connect(attempt)
+      self ! FetchStart(attempt)
     case a if a < MaxConnectAttempts =>
       val delay = (attempt * attempt).seconds
       log.info(s"Connecting in $delay")
-      connecter = Some(system.scheduler.scheduleOnce(delay, self, Connect(attempt)))
+      connecter = Some(system.scheduler.scheduleOnce(delay, self, FetchStart(attempt)))
     case _ =>
       log.error("Too many failed attempts. Stopping...")
       context.stop(self)
   }
 
   private def disconnected: Receive = {
-    case Connect(attempt) =>
-      context.become(connecting)
+    case FetchStart(attempt) =>
       log.info("Fetching WebSocket URL and start state (attempt #{})", attempt)
       val startHandler = new SlackResponseHandler[RtmStart] {
         override def onSuccess(start: RtmStart): Unit = {
@@ -118,28 +115,23 @@ class Slacka(
           self ! StartThrowable(t, attempt)
         }
       }
+      context.become(fetchingStart)
       webApi.rtm.start(handler = startHandler)
   }
 
-  private def connecting: Receive = {
+  private def fetchingStart: Receive = {
     case ConnectWebSocket(start, attempt) =>
       log.info("Connecting via WebSockets")
       wsApi.connect(start.url, websocketListener) match {
         case Success(true) =>
           log.info("WebSockets connection established")
-          state = Some(SlackState(start))
-          context.become(connected)
-          pinger = startPing()
+          context.become(awaitingHello(SlackState(start)))
         case Success(false) =>
           context.become(disconnected)
           sender() ! StartThrowable(new RuntimeException("Connected but lost WebSockets connection"), attempt)
         case Failure(t) =>
           context.become(disconnected)
           sender() ! StartThrowable(t, attempt)
-      }
-    case WebSocketMessage(message) =>
-      if (isHello(parse(message).asInstanceOf[JObject])) {
-        state.foreach { self ! Connected(_) }
       }
     case StartError(error, attempt) =>
       log.error("Slack error during initialization (attempt #{}): {}", attempt, error)
@@ -151,24 +143,31 @@ class Slacka(
       connect(attempt + 1)
   }
 
-  private def connected: Receive = {
+  private def awaitingHello(state: SlackState): Receive = {
+    case WebSocketMessage(message) =>
+      if (isHello(parse(message).asInstanceOf[JObject])) {
+        context.become(connected(state))
+        pinger = startPing()
+        workers ! Connected(state)
+      }
+  }
+
+  private def connected(state: SlackState): Receive = {
     case WebSocketClose =>
       log.error("WebSockets disconnected. Reconnecting")
       context.become(disconnected)
       pinger.foreach { _.cancel() }
       wsApi.disconnect()
-      state.foreach { workers ! Disconnected(_) }
+      workers ! Disconnected(state)
       connect(0)
     case WebSocketThrowable(t) =>
       log.error(t, "WebSockets error")
     case WebSocketMessage(message) =>
       val json = parse(message).asInstanceOf[JObject]
       if (!isReply(json)) {
-        state = state.map(_.update(json))
+        context.become(connected(state.update(json)))
       }
-      state.foreach { s =>
-        workers ! ReceiveMessage(s, json)
-      }
+      workers ! ReceiveMessage(state, json)
     case SendMessage(id, channel, text) =>
       wsApi.sendMessage(id, channel, text)
     case SendPing(id) =>

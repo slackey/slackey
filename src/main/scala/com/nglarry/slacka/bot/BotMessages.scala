@@ -5,7 +5,7 @@ import org.json4s._
 import com.nglarry.slacka.codecs.responses.RtmStart
 
 object BotMessages {
-  case class Connect(attempt: Int)
+  case class FetchStart(attempt: Int)
   case class ConnectWebSocket(start: RtmStart, attempt: Int)
   case class StartError(msg: String, attempt: Int)
   case class StartThrowable(t: Throwable, attempt: Int)
