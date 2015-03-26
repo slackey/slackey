@@ -66,14 +66,14 @@ case class SlackState(
         } yield updateChannel(channelId) { _.copy(last_read = Some(ts)) }).head
       case "channel_created" =>
         val channel = extract[Channel](json \ "channel")
-        if (channelById.contains(channel.id)) this else copy(channels = channels :+ channel)
+        if (channelById.contains(channel.id)) this else copy(channels = channel +: channels)
       case "channel_joined" =>
         val channel = extract[Channel](json \ "channel")
         channelById.get(channel.id) match {
           case Some(oldChannel) =>
             copy(channels = channels.map(c => if (c.id == channel.id) channel else c))
           case None =>
-            copy(channels = channels :+ channel)
+            copy(channels = channel +: channels)
         }
       case "channel_left" =>
         val JString(channelId) = json \ "channel"
@@ -92,7 +92,7 @@ case class SlackState(
         updateChannel(channelId) { _.copy(is_archived = Some(false)) }
       case "im_created" =>
         val im = extract[IM](json \ "channel")
-        copy(ims = ims :+ im)
+        copy(ims = im +: ims)
       case "im_open" =>
         val JString(imId) = json \ "channel"
         updateIM(imId) { _.copy(is_open = Some(true)) }
@@ -108,7 +108,7 @@ case class SlackState(
       case "group_joined" =>
         val group = extract[Group](json \ "channel")
           .copy(is_open = Some(true))  // assumed
-        copy(groups = groups :+ group)
+        copy(groups = group +: groups)
       case "group_left" =>
         val JString(groupId) = json \ "channel"
         copy(groups = groups.filter(_.id != groupId))
@@ -155,7 +155,7 @@ case class SlackState(
           state
       case "team_join" =>
         val user = extract[User](json \ "user")
-        if (userById.contains(user.id)) this else copy(users = users :+ user)
+        if (userById.contains(user.id)) this else copy(users = user +: users)
       case "team_rename" =>
         val JString(name) = json \ "name"
         copy(team = team.copy(name = name))
