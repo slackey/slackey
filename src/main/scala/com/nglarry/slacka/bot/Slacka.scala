@@ -20,7 +20,8 @@ import com.nglarry.slacka.util.randomReplyId
 object Slacka {
   val DefaultNrWorkers = 4
   val DefaultPingInterval = 5.seconds
-  val DefaultExecutorServiceFactory = () => Executors.newCachedThreadPool()
+  val DefaultWebExecutorServiceFactory = () => Executors.newCachedThreadPool()
+  val DefaultWebSocketExecutorServiceFactory = () => Executors.newCachedThreadPool()
   val MaxConnectAttempts = 3
 
   def apply(token: String) = PropsBuilder(token)
@@ -29,20 +30,30 @@ object Slacka {
       token: String,
       webConfig: AsyncHttpClientConfig = SlackWebApi.defaultHttpClientConfig,
       websocketConfig: AsyncHttpClientConfig = SlackWebSocketApi.defaultHttpClientConfig,
-      executorServiceFactory: () => ExecutorService = DefaultExecutorServiceFactory,
+      webExecutorServiceFactory: () => ExecutorService = DefaultWebExecutorServiceFactory,
+      webSocketExecutorServiceFactory: () => ExecutorService = DefaultWebSocketExecutorServiceFactory,
       listeners: List[RealTimeMessagingListener] = List.empty,
       workerCount: Int = DefaultNrWorkers,
       pingInterval: FiniteDuration = DefaultPingInterval) {
     def withWebConfig(config: AsyncHttpClientConfig) = copy(webConfig = config)
     def withWebSocketConfig(config: AsyncHttpClientConfig) = copy(websocketConfig = config)
-    def withExecutorServiceFactory(factory: () => ExecutorService) = copy(executorServiceFactory = factory)
+    def withWebExecutorServiceFactory(factory: () => ExecutorService) = copy(webExecutorServiceFactory = factory)
+    def withWebSocketExecutorServiceFactory(factory: () => ExecutorService) = copy(webSocketExecutorServiceFactory = factory)
     def withListeners(listeners: List[RealTimeMessagingListener]) = copy(listeners = listeners)
     def withWorkerCount(count: Int) = copy(workerCount = count)
     def withPingInterval(duration: FiniteDuration) = copy(pingInterval = duration)
     def addListener(listener: RealTimeMessagingListener) = copy(listeners = listeners :+ listener)
 
     def build: Props = {
-      Props(classOf[Slacka], token, webConfig, websocketConfig, executorServiceFactory, listeners, workerCount, pingInterval)
+      Props(classOf[Slacka],
+        token,
+        webConfig,
+        websocketConfig,
+        webExecutorServiceFactory,
+        webSocketExecutorServiceFactory,
+        listeners,
+        workerCount,
+        pingInterval)
     }
   }
 }
@@ -51,7 +62,8 @@ class Slacka(
     token: String,
     webConfig: AsyncHttpClientConfig,
     websocketConfig: AsyncHttpClientConfig,
-    executorServiceFactory: () => ExecutorService,
+    webExecutorServiceFactory: () => ExecutorService,
+    webSocketExecutorServiceFactory: () => ExecutorService,
     listeners: List[RealTimeMessagingListener],
     workerCount: Int,
     pingInterval: FiniteDuration) extends SlackaActor {
@@ -63,14 +75,14 @@ class Slacka(
 
   val webApi: SlackWebApi = {
     val config = new AsyncHttpClientConfig.Builder(webConfig)
-      .setExecutorService(executorServiceFactory())
+      .setExecutorService(webExecutorServiceFactory())
       .build()
     SlackWebApi(token, config)
   }
 
   val wsApi: SlackWebSocketApi = {
     val config = new AsyncHttpClientConfig.Builder(websocketConfig)
-      .setExecutorService(executorServiceFactory())
+      .setExecutorService(webSocketExecutorServiceFactory())
       .build()
     SlackWebSocketApi(config)
   }
