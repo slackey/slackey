@@ -2,7 +2,7 @@ package com.nglarry.slacka.bot
 
 import org.json4s._
 
-import com.nglarry.slacka.codecs.types.Message
+import com.nglarry.slacka.codecs.types._
 import com.nglarry.slacka.codecs.{extract, isReply}
 
 class Worker(listeners: List[RealTimeMessagingListener]) extends SlackaActor {
@@ -23,11 +23,14 @@ class Worker(listeners: List[RealTimeMessagingListener]) extends SlackaActor {
         val message = extract[Message](json)
         message.subtype match {
           case None =>
-            dispatchAndReply(_.onSimpleMessage(state, message, json))
+            val specific = SimpleMessage(message)
+            dispatchAndReply(_.onSimpleMessage(state, specific, json))
           case Some("bot_message") =>
-            dispatchAndReply(_.onBotMessage(state, message, json))
+            val specific = BotMessage(message)
+            dispatchAndReply(_.onBotMessage(state, specific, json))
           case Some("me_message") =>
-            dispatchAndReply(_.onMeMessage(state, message, json))
+            val specific = MeMessage(message)
+            dispatchAndReply(_.onMeMessage(state, specific, json))
           case _ => // noop
         }
       case _ =>  // noop

@@ -37,17 +37,17 @@ case class SlackState(
         message.subtype match {
           case Some("channel_join") =>
             updateChannel(message.channel) { oldChannel =>
-              oldChannel.copy(members = Some(oldChannel.members.getOrElse(Set.empty) + message.user))
+              oldChannel.copy(members = Some(oldChannel.members.getOrElse(Set.empty) + message.user.get))
             }
           case Some("channel_leave") =>
             updateChannel(message.channel) { oldChannel =>
-              oldChannel.copy(members = Some(oldChannel.members.getOrElse(Set.empty) - message.user))
+              oldChannel.copy(members = Some(oldChannel.members.getOrElse(Set.empty) - message.user.get))
             }
           case Some("channel_topic") =>
-            val newTopic = Topic(message.topic.getOrElse(""), message.user, message.ts.toDouble.toLong)
+            val newTopic = Topic(message.topic.get, message.user.get, message.ts.toDouble.toLong)
             updateChannel(message.channel) { _.copy(topic = Some(newTopic)) }
           case Some("channel_purpose") =>
-            val newPurpose = Purpose(message.purpose.getOrElse(""), message.user, message.ts.toDouble.toLong)
+            val newPurpose = Purpose(message.purpose.get, message.user.get, message.ts.toDouble.toLong)
             updateChannel(message.channel) { _.copy(purpose = Some(newPurpose)) }
           case Some("channel_name") =>
             updateChannel(message.channel) { _.copy(name = message.name.getOrElse("")) }
