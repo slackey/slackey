@@ -32,7 +32,7 @@ class SlackWebSocketApi(clientConfig: AsyncHttpClientConfig) {
 
   def isConnected: Boolean = websocket.filter(_.isOpen).isDefined
 
-  def disconnect(): Unit = { websocket.map(_.close()) }
+  def disconnect(): Unit = { websocket.foreach(_.close()) }
 
   def close(): Unit = {
     websocket.foreach { _.close() }

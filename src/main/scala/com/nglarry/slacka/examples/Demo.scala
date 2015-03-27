@@ -15,14 +15,12 @@ object Demo {
     .setConnectTimeout(10000)
     .setRequestTimeout(10000)
     .setAcceptAnyCertificate(true)
-    .setExecutorService(Executors.newCachedThreadPool)
     .build()
 
   private val websocketConfig = new AsyncHttpClientConfig.Builder()
     .setConnectTimeout(10000)
     .setRequestTimeout(10000)
     .setAcceptAnyCertificate(true)
-    .setExecutorService(Executors.newCachedThreadPool)
     .setWebSocketTimeout(60000)
     .build()
 
