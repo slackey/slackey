@@ -25,11 +25,11 @@ def get_methods(path):
 def write_response_codec(method):
     if not method.fields:
         return
-    with open(rel('../src/main/scala/com/nglarry/slacka/codecs/responses/%s.scala' % method.classname), 'w') as f:
+    with open(rel('../src/main/scala/com/github/slackey/codecs/responses/%s.scala' % method.classname), 'w') as f:
         fields_str = '  ' + ',\n  '.join('%s: %s' % (a['name'], a['type']) for a in method.fields)
-        f.write('package com.nglarry.slacka.codecs.responses\n\n')
+        f.write('package com.github.slackey.codecs.responses\n\n')
         f.write('import org.json4s._\n')
-        f.write('import com.nglarry.slacka.codecs.types._\n\n')
+        f.write('import com.github.slackey.codecs.types._\n\n')
         f.write('case class %s(\n' % method.classname)
         f.write(fields_str)
         f.write('\n)\n')
@@ -61,7 +61,7 @@ def write_api_fns(methods):
         lines.append('')
     lines.append('  //}}}')
     o = '\n'.join(lines)
-    api_path = rel('../src/main/scala/com/nglarry/slacka/api/SlackWebApi.scala')
+    api_path = rel('../src/main/scala/com/github/slackey/api/SlackWebApi.scala')
     with open(api_path, 'r') as f:
         original = f.read()
     with open(api_path, 'w') as f:

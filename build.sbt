@@ -1,14 +1,14 @@
-name := "slacka"
+name := "slackey"
 
-organization := "com.nglarry"
+organization := "com.github.slackey"
 
-homepage := Some(url("https://github.com/larryng/slacka"))
+homepage := Some(url("https://github.com/slackey/slackey"))
 
 startYear := Some(2015)
 
 description := "An Akka actor playing a customizable Slack bot with state handling"
 
-licenses += "MIT" -> url("https://github.com/larryng/slacka/blob/master/LICENSE")
+licenses += "MIT" -> url("https://github.com/slackey/slackey/blob/master/LICENSE")
 
 version := "0.1-SNAPSHOT"
 
