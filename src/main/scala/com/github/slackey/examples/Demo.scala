@@ -12,21 +12,14 @@ object Demo {
   private val webConfig = new AsyncHttpClientConfig.Builder()
     .setConnectTimeout(10000)
     .setRequestTimeout(10000)
-    .setAcceptAnyCertificate(true)
-    .build()
-
-  private val websocketConfig = new AsyncHttpClientConfig.Builder()
-    .setConnectTimeout(10000)
-    .setRequestTimeout(10000)
-    .setAcceptAnyCertificate(true)
     .setWebSocketTimeout(60000)
+    .setAcceptAnyCertificate(true)
     .build()
 
   def main(args: Array[String]): Unit = {
     val token = args(0)
     val props = Slackey(token)
-      .withWebConfig(webConfig)
-      .withWebSocketConfig(websocketConfig)
+      .withHttpConfig(webConfig)
       .addListener(EchoListener)
       .build
     val system = ActorSystem("demo")

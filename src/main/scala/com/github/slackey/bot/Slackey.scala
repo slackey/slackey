@@ -12,7 +12,7 @@ import com.ning.http.client.ws.{WebSocket, WebSocketTextListener}
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
-import com.github.slackey.api.{SlackError, SlackResponseHandler, SlackWebApi, SlackWebSocketApi}
+import com.github.slackey.api.{SlackError, SlackResponseHandler, SlackApi}
 import com.github.slackey.bot.messages._
 import com.github.slackey.codecs.responses.RtmStart
 import com.github.slackey.codecs.{isHello, isReply}
@@ -20,25 +20,20 @@ import com.github.slackey.codecs.{isHello, isReply}
 object Slackey {
   val DefaultNrWorkers = 4
   val DefaultPingInterval = 5.seconds
-  val DefaultWebExecutorServiceFactory = () => Executors.newCachedThreadPool()
-  val DefaultWebSocketExecutorServiceFactory = () => Executors.newCachedThreadPool()
+  val DefaultHttpExecutorServiceFactory = () => Executors.newCachedThreadPool()
   val MaxConnectAttempts = 3
 
   def apply(token: String) = PropsBuilder(token)
 
   case class PropsBuilder(
       token: String,
-      webConfig: AsyncHttpClientConfig = SlackWebApi.defaultHttpClientConfig,
-      websocketConfig: AsyncHttpClientConfig = SlackWebSocketApi.defaultHttpClientConfig,
-      webExecutorServiceFactory: () => ExecutorService = DefaultWebExecutorServiceFactory,
-      webSocketExecutorServiceFactory: () => ExecutorService = DefaultWebSocketExecutorServiceFactory,
+      httpConfig: AsyncHttpClientConfig = SlackApi.defaultHttpClientConfig,
+      httpExecutorServiceFactory: () => ExecutorService = DefaultHttpExecutorServiceFactory,
       listeners: List[RealTimeMessagingListener] = List.empty,
       workerCount: Int = DefaultNrWorkers,
       pingInterval: FiniteDuration = DefaultPingInterval) {
-    def withWebConfig(config: AsyncHttpClientConfig) = copy(webConfig = config)
-    def withWebSocketConfig(config: AsyncHttpClientConfig) = copy(websocketConfig = config)
-    def withWebExecutorServiceFactory(factory: () => ExecutorService) = copy(webExecutorServiceFactory = factory)
-    def withWebSocketExecutorServiceFactory(factory: () => ExecutorService) = copy(webSocketExecutorServiceFactory = factory)
+    def withHttpConfig(config: AsyncHttpClientConfig) = copy(httpConfig = config)
+    def withHttpExecutorServiceFactory(factory: () => ExecutorService) = copy(httpExecutorServiceFactory = factory)
     def withListeners(listeners: List[RealTimeMessagingListener]) = copy(listeners = listeners)
     def withWorkerCount(count: Int) = copy(workerCount = count)
     def withPingInterval(duration: FiniteDuration) = copy(pingInterval = duration)
@@ -47,10 +42,8 @@ object Slackey {
     def build: Props = {
       Props(classOf[Slackey],
         token,
-        webConfig,
-        websocketConfig,
-        webExecutorServiceFactory,
-        webSocketExecutorServiceFactory,
+        httpConfig,
+        httpExecutorServiceFactory,
         listeners,
         workerCount,
         pingInterval)
@@ -60,10 +53,8 @@ object Slackey {
 
 class Slackey(
     token: String,
-    webConfig: AsyncHttpClientConfig,
-    websocketConfig: AsyncHttpClientConfig,
-    webExecutorServiceFactory: () => ExecutorService,
-    webSocketExecutorServiceFactory: () => ExecutorService,
+    httpConfig: AsyncHttpClientConfig,
+    httpExecutorServiceFactory: () => ExecutorService,
     listeners: List[RealTimeMessagingListener],
     workerCount: Int,
     pingInterval: FiniteDuration) extends SlackeyActor {
@@ -72,18 +63,11 @@ class Slackey(
   val system = context.system
   import system.dispatcher
 
-  val webApi: SlackWebApi = {
-    val config = new AsyncHttpClientConfig.Builder(webConfig)
-      .setExecutorService(webExecutorServiceFactory())
+  val webApi: SlackApi = {
+    val config = new AsyncHttpClientConfig.Builder(httpConfig)
+      .setExecutorService(httpExecutorServiceFactory())
       .build()
-    SlackWebApi(token, config)
-  }
-
-  val wsApi: SlackWebSocketApi = {
-    val config = new AsyncHttpClientConfig.Builder(websocketConfig)
-      .setExecutorService(webSocketExecutorServiceFactory())
-      .build()
-    SlackWebSocketApi(config)
+    SlackApi(token, config)
   }
 
   val websocketListener = new WebSocketTextListener {
@@ -113,7 +97,6 @@ class Slackey(
     connecter.foreach { _.cancel() }
     pinger.foreach { _.cancel() }
     webApi.close()
-    wsApi.close()
   }
 
   private def connect(attempt: Int): Unit = attempt match {
@@ -158,7 +141,7 @@ class Slackey(
   private def connecting(state: SlackState): Receive = {
     case ConnectWebSocket(start, attempt) =>
       context.become(awaitingHello(state))
-      wsApi.connect(start.url, websocketListener) match {
+      webApi.connect(start.url, websocketListener) match {
         case Success(true) =>
           log.info("WebSockets connection established")
         case Success(false) =>
@@ -185,7 +168,7 @@ class Slackey(
       log.error("WebSockets disconnected. Reconnecting")
       context.become(disconnected)
       pinger.foreach { _.cancel() }
-      wsApi.disconnect()
+      webApi.disconnect()
       workers ! Disconnected(state)
       connect(0)
     case WebSocketThrowable(t) =>
@@ -197,9 +180,9 @@ class Slackey(
       }
       workers ! ReceiveMessage(state, json)
     case SendMessage(id, channel, text) =>
-      wsApi.sendMessage(id, channel, text)
+      webApi.sendMessage(id, channel, text)
     case SendPing(id) =>
-      wsApi.sendPing(id)
+      webApi.sendPing(id)
   }
 
   private def startPing() =

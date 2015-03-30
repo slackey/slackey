@@ -61,7 +61,7 @@ def write_api_fns(methods):
         lines.append('')
     lines.append('  //}}}')
     o = '\n'.join(lines)
-    api_path = rel('../src/main/scala/com/github/slackey/api/SlackWebApi.scala')
+    api_path = rel('../src/main/scala/com/github/slackey/api/SlackApi.scala')
     with open(api_path, 'r') as f:
         original = f.read()
     with open(api_path, 'w') as f:

@@ -1,18 +1,22 @@
 package com.github.slackey.api
 
+import scala.util.Try
+
 import com.ning.http.client._
+import com.ning.http.client.ws.{WebSocketUpgradeHandler, WebSocketTextListener, WebSocket}
 import org.json4s._
+import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 
 import com.github.slackey.codecs.extract
 import com.github.slackey.codecs.responses._
 
-object SlackWebApi {
+object SlackApi {
   def defaultHttpClientConfig =
     new AsyncHttpClientConfig.Builder().build()
 
-  def apply(token: String, clientConfig: AsyncHttpClientConfig = defaultHttpClientConfig): SlackWebApi = {
-    new SlackWebApi(token, clientConfig)
+  def apply(token: String, clientConfig: AsyncHttpClientConfig = defaultHttpClientConfig): SlackApi = {
+    new SlackApi(token, clientConfig)
   }
 
   private def url(method: String): String = s"https://slack.com/api/$method"
@@ -20,19 +24,54 @@ object SlackWebApi {
   private def defaultHandler[T] = new SlackResponseHandler[T] {}
 }
 
-class SlackWebApi(
+class SlackApi(
     token: String,
-    clientConfig: AsyncHttpClientConfig = SlackWebApi.defaultHttpClientConfig) {
-  import SlackWebApi._
+    clientConfig: AsyncHttpClientConfig = SlackApi.defaultHttpClientConfig) {
+  import SlackApi._
 
-  val client: AsyncHttpClient = new AsyncHttpClient(clientConfig)
+  private val client: AsyncHttpClient = new AsyncHttpClient(clientConfig)
+  private var websocket: Option[WebSocket] = None
 
   def isOpen: Boolean = !isClosed
-
   def isClosed: Boolean = client.isClosed
+  def isConnected: Boolean = websocket.filter(_.isOpen).isDefined
+
+  def connect(websocketUrl: String, listener: WebSocketTextListener): Try[Boolean] = {
+    val upgradeHandler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build()
+    Try {
+      val ws = client.prepareGet(websocketUrl).execute(upgradeHandler).get()
+      websocket = Some(ws)
+      ws.isOpen
+    }
+  }
+
+  def disconnect(): Unit = { websocket.foreach(_.close()) }
 
   def close(): Unit = {
-    if (!isClosed) client.close()
+    disconnect()
+    client.close()
+  }
+
+  def sendMessage(id: Long, channel: String, text: String): Unit = send {
+    ("id" -> id) ~
+      ("type" -> "message") ~
+      ("channel" -> channel) ~
+      ("text" -> text)
+  }
+
+  def sendTyping(id: Long, channel: String): Unit = send {
+    ("id" -> id) ~
+      ("type" -> "typing") ~
+      ("channel" -> channel)
+  }
+
+  def sendPing(id: Long): Unit = send {
+    ("id" -> id) ~
+      ("type" -> "ping")
+  }
+
+  def send(json: JObject): Unit = {
+    websocket.foreach { _.sendMessage(compact(render(json))) }
   }
 
   //{{{
