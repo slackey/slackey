@@ -52,28 +52,6 @@ class SlackApi(
     client.close()
   }
 
-  def sendMessage(id: Long, channel: String, text: String): Unit = send {
-    ("id" -> id) ~
-      ("type" -> "message") ~
-      ("channel" -> channel) ~
-      ("text" -> text)
-  }
-
-  def sendTyping(id: Long, channel: String): Unit = send {
-    ("id" -> id) ~
-      ("type" -> "typing") ~
-      ("channel" -> channel)
-  }
-
-  def sendPing(id: Long): Unit = send {
-    ("id" -> id) ~
-      ("type" -> "ping")
-  }
-
-  def send(json: JObject): Unit = {
-    websocket.foreach { _.sendMessage(compact(render(json))) }
-  }
-
   //{{{
   object auth {
     def test(handler: SlackResponseHandler[AuthTest] = defaultHandler) =
@@ -222,5 +200,28 @@ class SlackApi(
     }
     req.execute(completionHandler)
   }
+
+  def sendMessage(id: Long, channel: String, text: String): Unit = send {
+    ("id" -> id) ~
+    ("type" -> "message") ~
+    ("channel" -> channel) ~
+    ("text" -> text)
+  }
+
+  def sendTyping(id: Long, channel: String): Unit = send {
+    ("id" -> id) ~
+    ("type" -> "typing") ~
+    ("channel" -> channel)
+  }
+
+  def sendPing(id: Long): Unit = send {
+    ("id" -> id) ~
+    ("type" -> "ping")
+  }
+
+  def send(json: JObject): Unit = {
+    websocket.foreach { _.sendMessage(compact(render(json))) }
+  }
+
 
 }
