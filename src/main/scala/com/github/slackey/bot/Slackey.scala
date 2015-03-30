@@ -133,7 +133,7 @@ class Slackey(
       log.info("Fetching WebSocket URL and start state (attempt #{})", attempt)
       val startHandler = new SlackResponseHandler[RtmStart] {
         override def onSuccess(start: RtmStart): Unit = {
-          self ! ConnectWebSocket(start, attempt)
+          self ! ReceivedStart(start, attempt)
         }
         override def onSlackError(error: SlackError): Unit = {
           self ! StartError(error, attempt)
@@ -142,37 +142,38 @@ class Slackey(
           self ! StartThrowable(t, attempt)
         }
       }
-      context.become(fetchingStart)
       webApi.rtm.start(handler = startHandler)
-  }
-
-  private def fetchingStart: Receive = {
-    case ConnectWebSocket(start, attempt) =>
+    case ReceivedStart(start, attempt) =>
       log.info("Connecting via WebSockets")
-      wsApi.connect(start.url, websocketListener) match {
-        case Success(true) =>
-          log.info("WebSockets connection established")
-          context.become(awaitingHello(SlackState(start)))
-        case Success(false) =>
-          context.become(disconnected)
-          sender() ! StartThrowable(new RuntimeException("Connected but lost WebSockets connection"), attempt)
-        case Failure(t) =>
-          context.become(disconnected)
-          sender() ! StartThrowable(t, attempt)
-      }
+      context.become(connecting(SlackState(start)))
+      self ! ConnectWebSocket(start, attempt)
     case StartError(error, attempt) =>
       log.error("Slack error during initialization (attempt #{}): {}", attempt, error)
-      context.become(disconnected)
       connect(attempt + 1)
     case StartThrowable(t, attempt) =>
       log.error(t, "Exception during initialization (attempt #{})", attempt)
-      context.become(disconnected)
       connect(attempt + 1)
+  }
+
+  private def connecting(state: SlackState): Receive = {
+    case ConnectWebSocket(start, attempt) =>
+      context.become(awaitingHello(state))
+      wsApi.connect(start.url, websocketListener) match {
+        case Success(true) =>
+          log.info("WebSockets connection established")
+        case Success(false) =>
+          context.become(disconnected)
+          self ! StartThrowable(new RuntimeException("Connected but lost WebSockets connection"), attempt)
+        case Failure(t) =>
+          context.become(disconnected)
+          self ! StartThrowable(t, attempt)
+      }
   }
 
   private def awaitingHello(state: SlackState): Receive = {
     case WebSocketMessage(message) =>
       if (isHello(parse(message).asInstanceOf[JObject])) {
+        log.info("Received 'hello'")
         context.become(connected(state))
         pinger = startPing()
         workers ! Connected(state)

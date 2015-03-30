@@ -6,6 +6,7 @@ import com.github.slackey.codecs.responses.RtmStart
 
 package object messages {
   case class FetchStart(attempt: Int)
+  case class ReceivedStart(start: RtmStart, attempt: Int)
   case class ConnectWebSocket(start: RtmStart, attempt: Int)
   case class StartError(msg: String, attempt: Int)
   case class StartThrowable(t: Throwable, attempt: Int)
