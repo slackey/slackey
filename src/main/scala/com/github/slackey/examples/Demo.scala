@@ -24,13 +24,13 @@ object Demo {
 
   def main(args: Array[String]): Unit = {
     val token = args(0)
-    val slackeyProps = Slackey(token)
+    val props = Slackey(token)
       .withWebConfig(webConfig)
       .withWebSocketConfig(websocketConfig)
       .addListener(EchoListener)
       .build
     val system = ActorSystem("demo")
-    system.actorOf(slackeyProps, "slackey")
+    system.actorOf(props, "slackey")
     println("Enter to quit.")
     StdIn.readLine()
     system.shutdown()
