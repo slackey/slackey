@@ -3,9 +3,9 @@ package com.github.slackey.api
 import scala.util.Try
 
 import com.ning.http.client._
-import com.ning.http.client.ws.{WebSocketUpgradeHandler, WebSocketTextListener, WebSocket}
-import org.json4s._
+import com.ning.http.client.ws.{WebSocket, WebSocketTextListener, WebSocketUpgradeHandler}
 import org.json4s.JsonDSL._
+import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
 import com.github.slackey.codecs.extract

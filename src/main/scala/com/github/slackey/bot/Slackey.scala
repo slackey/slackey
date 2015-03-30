@@ -3,7 +3,7 @@ package com.github.slackey.bot
 import java.util.concurrent.{ExecutorService, Executors}
 
 import scala.concurrent.duration._
-import scala.util.{Random, Failure, Success}
+import scala.util.{Failure, Random, Success}
 
 import akka.actor._
 import akka.routing.RoundRobinPool
@@ -12,7 +12,7 @@ import com.ning.http.client.ws.{WebSocket, WebSocketTextListener}
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
-import com.github.slackey.api.{SlackError, SlackResponseHandler, SlackApi}
+import com.github.slackey.api.{SlackApi, SlackError, SlackResponseHandler}
 import com.github.slackey.bot.messages._
 import com.github.slackey.codecs.responses.RtmStart
 import com.github.slackey.codecs.{isHello, isReply}
