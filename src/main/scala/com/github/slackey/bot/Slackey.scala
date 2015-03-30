@@ -3,7 +3,7 @@ package com.github.slackey.bot
 import java.util.concurrent.{ExecutorService, Executors}
 
 import scala.concurrent.duration._
-import scala.util.{Failure, Success}
+import scala.util.{Random, Failure, Success}
 
 import akka.actor._
 import akka.routing.RoundRobinPool
@@ -15,7 +15,6 @@ import org.json4s.jackson.JsonMethods._
 import com.github.slackey.api.{SlackError, SlackResponseHandler, SlackWebApi, SlackWebSocketApi}
 import com.github.slackey.codecs.responses.RtmStart
 import com.github.slackey.codecs.{isHello, isReply}
-import com.github.slackey.util.randomReplyId
 
 object Slackey {
   val DefaultNrWorkers = 4
@@ -203,7 +202,7 @@ class Slackey(
   }
 
   private def startPing() =
-    Some(system.scheduler.schedule(pingInterval, pingInterval, self, SendPing(randomReplyId)))
+    Some(system.scheduler.schedule(pingInterval, pingInterval, self, SendPing(Random.nextLong())))
 }
 
 
