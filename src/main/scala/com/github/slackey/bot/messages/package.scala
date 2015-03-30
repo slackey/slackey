@@ -1,10 +1,10 @@
 package com.github.slackey.bot
 
-import org.json4s._
+import org.json4s.JObject
 
 import com.github.slackey.codecs.responses.RtmStart
 
-object BotMessages {
+package object messages {
   case class FetchStart(attempt: Int)
   case class ConnectWebSocket(start: RtmStart, attempt: Int)
   case class StartError(msg: String, attempt: Int)

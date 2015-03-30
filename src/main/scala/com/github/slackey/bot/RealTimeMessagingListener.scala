@@ -5,7 +5,7 @@ import org.json4s._
 import com.github.slackey.codecs.types.{BotMessage, MeMessage, SimpleMessage}
 
 trait RealTimeMessagingListener {
-  import BotMessages._
+  import messages._
 
   def onConnected(state: SlackState): Seq[SendMessage] = Seq.empty
   def onDisconnected(state: SlackState): Seq[SendMessage] = Seq.empty

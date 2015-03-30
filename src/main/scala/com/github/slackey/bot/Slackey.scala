@@ -13,6 +13,7 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
 import com.github.slackey.api.{SlackError, SlackResponseHandler, SlackWebApi, SlackWebSocketApi}
+import com.github.slackey.bot.messages._
 import com.github.slackey.codecs.responses.RtmStart
 import com.github.slackey.codecs.{isHello, isReply}
 
@@ -66,7 +67,6 @@ class Slackey(
     listeners: List[RealTimeMessagingListener],
     workerCount: Int,
     pingInterval: FiniteDuration) extends SlackeyActor {
-  import BotMessages._
   import Slackey._
 
   val system = context.system
