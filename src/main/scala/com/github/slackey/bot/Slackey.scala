@@ -12,7 +12,7 @@ import com.ning.http.client.ws.{WebSocket, WebSocketTextListener}
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
-import com.github.slackey.api.{SlackApi, SlackError, SlackResponseHandler}
+import com.github.slackey.api.{SlackApi, SlackError, SlackResponseHandler, SlackWebSocketConnection}
 import com.github.slackey.bot.messages._
 import com.github.slackey.codecs.responses.RtmStart
 import com.github.slackey.codecs.{isHello, isReply}
@@ -70,6 +70,8 @@ class Slackey(
     SlackApi(token, config)
   }
 
+  var wsConn: Option[SlackWebSocketConnection] = None
+
   val websocketListener = new WebSocketTextListener {
     override def onMessage(message: String): Unit = {
       log.debug(s"Received: $message")
@@ -97,6 +99,7 @@ class Slackey(
     connecter.foreach { _.cancel() }
     pinger.foreach { _.cancel() }
     webApi.close()
+    wsConn.foreach { _.close() }
   }
 
   private def connect(attempt: Int): Unit = attempt match {
@@ -142,11 +145,15 @@ class Slackey(
     case ConnectWebSocket(start, attempt) =>
       context.become(awaitingHello(state))
       webApi.connect(start.url, websocketListener) match {
-        case Success(true) =>
-          log.info("WebSockets connection established")
-        case Success(false) =>
-          context.become(disconnected)
-          self ! StartThrowable(new RuntimeException("Connected but lost WebSockets connection"), attempt)
+        case Success(conn) =>
+          if (conn.isOpen) {
+            log.info("WebSockets connection established")
+            wsConn = Some(conn)
+          } else {
+            conn.close()
+            context.become(disconnected)
+            self ! StartThrowable(new RuntimeException("Connected but lost WebSockets connection"), attempt)
+          }
         case Failure(t) =>
           context.become(disconnected)
           self ! StartThrowable(t, attempt)
@@ -168,7 +175,7 @@ class Slackey(
       log.error("WebSockets disconnected. Reconnecting")
       context.become(disconnected)
       pinger.foreach { _.cancel() }
-      webApi.disconnect()
+      wsConn.foreach { _.close() }
       workers ! Disconnected(state)
       connect(0)
     case WebSocketThrowable(t) =>
@@ -180,9 +187,9 @@ class Slackey(
       }
       workers ! ReceiveMessage(state, json)
     case SendMessage(id, channel, text) =>
-      webApi.sendMessage(id, channel, text)
+      wsConn.foreach { _.sendMessage(id, channel, text) }
     case SendPing(id) =>
-      webApi.sendPing(id)
+      wsConn.foreach { _.sendPing(id) }
   }
 
   private def startPing() =

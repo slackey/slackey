@@ -3,8 +3,7 @@ package com.github.slackey.api
 import scala.util.Try
 
 import com.ning.http.client._
-import com.ning.http.client.ws.{WebSocket, WebSocketTextListener, WebSocketUpgradeHandler}
-import org.json4s.JsonDSL._
+import com.ning.http.client.ws.{WebSocketTextListener, WebSocketUpgradeHandler}
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
@@ -30,25 +29,19 @@ class SlackApi(
   import SlackApi._
 
   private val client: AsyncHttpClient = new AsyncHttpClient(clientConfig)
-  private var websocket: Option[WebSocket] = None
 
   def isOpen: Boolean = !isClosed
   def isClosed: Boolean = client.isClosed
-  def isConnected: Boolean = websocket.filter(_.isOpen).isDefined
 
-  def connect(websocketUrl: String, listener: WebSocketTextListener): Try[Boolean] = {
+  def connect(websocketUrl: String, listener: WebSocketTextListener): Try[SlackWebSocketConnection] = {
     val upgradeHandler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build()
     Try {
       val ws = client.prepareGet(websocketUrl).execute(upgradeHandler).get()
-      websocket = Some(ws)
-      ws.isOpen
+      SlackWebSocketConnection(ws)
     }
   }
 
-  def disconnect(): Unit = { websocket.foreach(_.close()) }
-
   def close(): Unit = {
-    disconnect()
     client.close()
   }
 
@@ -200,28 +193,5 @@ class SlackApi(
     }
     req.execute(completionHandler)
   }
-
-  def sendMessage(id: Long, channel: String, text: String): Unit = send {
-    ("id" -> id) ~
-    ("type" -> "message") ~
-    ("channel" -> channel) ~
-    ("text" -> text)
-  }
-
-  def sendTyping(id: Long, channel: String): Unit = send {
-    ("id" -> id) ~
-    ("type" -> "typing") ~
-    ("channel" -> channel)
-  }
-
-  def sendPing(id: Long): Unit = send {
-    ("id" -> id) ~
-    ("type" -> "ping")
-  }
-
-  def send(json: JObject): Unit = {
-    websocket.foreach { _.sendMessage(compact(render(json))) }
-  }
-
 
 }
