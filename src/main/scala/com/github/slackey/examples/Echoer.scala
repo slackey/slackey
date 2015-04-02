@@ -8,7 +8,7 @@ import com.github.slackey.bot.messages.SendMessage
 import com.github.slackey.bot.{RealTimeMessagingListener, SlackState}
 import com.github.slackey.codecs.types.SimpleMessage
 
-object EchoListener extends RealTimeMessagingListener {
+object Echoer extends RealTimeMessagingListener {
   override def onSimpleMessage(state: SlackState, message: SimpleMessage, json: JObject): Seq[SendMessage] = {
     val user = state.userById.get(message.user)
     val name = user.fold("<unknown>")(_.name)
