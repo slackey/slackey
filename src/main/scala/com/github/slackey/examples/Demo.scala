@@ -21,6 +21,7 @@ object Demo {
     val props = Slackey(token)
       .withHttpConfig(webConfig)
       .addListener(Echoer)
+      .addListener(Announcer)
       .build
     val system = ActorSystem("demo")
     system.actorOf(props, "slackey")
