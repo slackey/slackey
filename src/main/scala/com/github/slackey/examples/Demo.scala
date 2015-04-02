@@ -1,7 +1,5 @@
 package com.github.slackey.examples
 
-import scala.io.StdIn
-
 import akka.actor.ActorSystem
 import com.ning.http.client.AsyncHttpClientConfig
 
@@ -26,7 +24,7 @@ object Demo {
     val system = ActorSystem("demo")
     system.actorOf(props, "slackey")
     println("Enter to quit.")
-    StdIn.readLine()
+    Console.readLine()
     system.shutdown()
   }
 
