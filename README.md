@@ -1,5 +1,5 @@
 # slackey
-Slackey is a library for using [Slack's Real Time Messaging API](https://api.slack.com/rtm).  Also included is an interface for the [Web API](https://api.slack.com/web), but it's mostly about making your own 11Slack lackey (read: bot).
+Slackey is a library for using [Slack's Real Time Messaging API](https://api.slack.com/rtm).  Also included is an interface for the [Web API](https://api.slack.com/web), but it's mostly about making your own Slack lackey (read: bot).
 
 A *reliable*, *fast*, *easy-to-use*, and *customizable* Slack bot.
 
