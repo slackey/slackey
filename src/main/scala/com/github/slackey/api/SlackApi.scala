@@ -23,9 +23,7 @@ object SlackApi {
   private def defaultHandler[T] = new SlackResponseHandler[T] {}
 }
 
-class SlackApi(
-    token: String,
-    clientConfig: AsyncHttpClientConfig = SlackApi.defaultHttpClientConfig) {
+class SlackApi(token: String, clientConfig: AsyncHttpClientConfig) {
   import SlackApi._
 
   private val client: AsyncHttpClient = new AsyncHttpClient(clientConfig)
