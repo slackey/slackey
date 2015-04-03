@@ -12,9 +12,7 @@ licenses += "MIT" -> url("https://github.com/slackey/slackey/blob/master/LICENSE
 
 version := "0.1-SNAPSHOT"
 
-scalaVersion := "2.11.2"
-
-crossScalaVersions := Seq("2.10.4", "2.11.2")
+scalaVersion := "2.11.5"
 
 libraryDependencies += "com.ning" % "async-http-client" % "1.9.10"
 
