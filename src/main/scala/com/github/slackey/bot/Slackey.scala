@@ -21,7 +21,6 @@ object Slackey {
   val DefaultNrWorkers = 4
   val DefaultPingInterval = 5.seconds
   val DefaultHttpExecutorServiceFactory = () => Executors.newCachedThreadPool()
-  val MaxConnectAttempts = 3
 
   def apply(token: String) = PropsBuilder(token)
 
@@ -58,8 +57,6 @@ class Slackey(
     listeners: List[RealTimeMessagingListener],
     workerCount: Int,
     pingInterval: FiniteDuration) extends SlackeyActor {
-  import Slackey._
-
   val system = context.system
   import system.dispatcher
 
@@ -105,13 +102,10 @@ class Slackey(
   private def connect(attempt: Int): Unit = attempt match {
     case 0 =>
       self ! FetchStart(attempt)
-    case a if a < MaxConnectAttempts =>
-      val delay = (attempt * attempt).seconds
+    case _ =>
+      val delay = Math.min(attempt * attempt, 60).seconds
       log.info(s"Connecting in $delay")
       connecter = Some(system.scheduler.scheduleOnce(delay, self, FetchStart(attempt)))
-    case _ =>
-      log.error("Too many failed attempts. Stopping...")
-      context.stop(self)
   }
 
   private def disconnected: Receive = {
