@@ -11,14 +11,14 @@ import com.github.slackey.codecs.extract
 import com.github.slackey.codecs.responses._
 
 object SlackApi {
-  def defaultHttpClientConfig =
-    new AsyncHttpClientConfig.Builder().build()
+  def defaultHttpClientConfig = new AsyncHttpClientConfig.Builder().build()
 
-  def apply(token: String, clientConfig: AsyncHttpClientConfig = defaultHttpClientConfig): SlackApi = {
+  def apply(
+      token: String,
+      clientConfig: AsyncHttpClientConfig = defaultHttpClientConfig): SlackApi =
     new SlackApi(token, clientConfig)
-  }
 
-  private def url(method: String): String = s"https://slack.com/api/$method"
+  private def url(method: String) = s"https://slack.com/api/$method"
 
   private def defaultHandler[T] = new SlackResponseHandler[T] {}
 }
@@ -29,14 +29,19 @@ class SlackApi(token: String, clientConfig: AsyncHttpClientConfig) {
   private val client: AsyncHttpClient = new AsyncHttpClient(clientConfig)
 
   def isOpen: Boolean = !isClosed
+
   def isClosed: Boolean = client.isClosed
 
-  def connect(websocketUrl: String, listener: WebSocketTextListener): Try[SlackWebSocketConnection] = {
-    val upgradeHandler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build()
-    Try {
-      val ws = client.prepareGet(websocketUrl).execute(upgradeHandler).get()
-      SlackWebSocketConnection(ws)
-    }
+  def connect(
+      websocketUrl: String,
+      listener: WebSocketTextListener): Try[SlackWebSocketConnection] = Try {
+    val upgradeHandler = new WebSocketUpgradeHandler.Builder()
+      .addWebSocketListener(listener)
+      .build
+    val ws = client.prepareGet(websocketUrl)
+      .execute(upgradeHandler)
+      .get()
+    SlackWebSocketConnection(ws)
   }
 
   def close(): Unit = {
@@ -165,12 +170,10 @@ class SlackApi(token: String, clientConfig: AsyncHttpClientConfig) {
       args: Map[String, Any],
       handler: SlackResponseHandler[T] = defaultHandler)
       (implicit m: Manifest[T]): ListenableFuture[SlackResponse[T]] = {
-    val req = (args + ("token" -> token)).foldLeft(client.preparePost(url(method))) { case (r, (k, v)) =>
-      v match {
-        case Some(item) => r.addFormParam(k, item.toString)
-        case None => r
-        case _ => r.addFormParam(k, v.toString)
-      }
+    val req = args.foldLeft(client.preparePost(url(method))) {
+      case (r, (k, Some(item))) => r.addFormParam(k, item.toString)
+      case (r, (_, None)) => r
+      case (r, (k, v)) => r.addFormParam(k, v.toString)
     }
     val completionHandler = new AsyncCompletionHandler[SlackResponse[T]] {
       override def onCompleted(response: Response) = {
@@ -189,7 +192,7 @@ class SlackApi(token: String, clientConfig: AsyncHttpClientConfig) {
       }
       override def onThrowable(t: Throwable): Unit = handler.onThrowable(t)
     }
-    req.execute(completionHandler)
+    req.addFormParam("token", token).execute(completionHandler)
   }
 
 }
