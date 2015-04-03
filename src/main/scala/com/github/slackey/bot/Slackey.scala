@@ -146,7 +146,8 @@ class Slackey(
           } else {
             conn.close()
             context.become(disconnected)
-            self ! StartThrowable(new RuntimeException("Connected but lost WebSockets connection"), attempt)
+            val ex = new RuntimeException("Connected but lost WebSockets connection")
+            self ! StartThrowable(ex, attempt)
           }
         case Failure(t) =>
           context.become(disconnected)

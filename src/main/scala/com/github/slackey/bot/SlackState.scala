@@ -37,12 +37,12 @@ case class SlackState(
         val message = extract[Message](json)
         message.subtype match {
           case Some("channel_join") =>
-            updateChannel(message.channel) { oldChannel =>
-              oldChannel.copy(members = Some(oldChannel.members.getOrElse(Set.empty) + message.user.get))
+            updateChannel(message.channel) { old =>
+              old.copy(members = Some(old.members.getOrElse(Set.empty) + message.user.get))
             }
           case Some("channel_leave") =>
-            updateChannel(message.channel) { oldChannel =>
-              oldChannel.copy(members = Some(oldChannel.members.getOrElse(Set.empty) - message.user.get))
+            updateChannel(message.channel) { old =>
+              old.copy(members = Some(old.members.getOrElse(Set.empty) - message.user.get))
             }
           case Some("channel_topic") =>
             val newTopic = Topic(message.topic.get, message.user.get, message.ts.toDouble.toLong)
@@ -71,8 +71,8 @@ case class SlackState(
       case "channel_joined" =>
         val channel = codecs.extract[Channel](json \ "channel")
         channelById.get(channel.id) match {
-          case Some(oldChannel) =>
-            copy(channels = channels.map(c => if (c.id == channel.id) channel else c))
+          case Some(_) =>
+            updateChannel(channel.id) { old => channel }
           case None =>
             copy(channels = channel +: channels)
         }
@@ -124,14 +124,10 @@ case class SlackState(
         updateGroup(group.id) { oldGroup => oldGroup.copy(name = group.name) }
       case "group_archive" =>
         val JString(groupId) = json \ "channel"
-        updateGroup(groupId) { oldGroup =>
-          oldGroup.copy(is_archived = Some(true))
-        }
+        updateGroup(groupId) { oldGroup => oldGroup.copy(is_archived = Some(true)) }
       case "group_unarchive" =>
         val JString(groupId) = json \ "channel"
-        updateGroup(groupId) { oldGroup =>
-          oldGroup.copy(is_archived = Some(false))
-        }
+        updateGroup(groupId) { oldGroup => oldGroup.copy(is_archived = Some(false)) }
       case "group_marked" =>
         (for {
           JObject(fields) <- json
@@ -150,10 +146,12 @@ case class SlackState(
       case "user_change" =>
         val user = codecs.extract[User](json \ "user")
         val state = updateUser(user.id) { oldUser => user}
-        if (user.deleted)
-          state.copy(ims = state.ims.map(i => if (i.user == user.id) i.copy(is_user_deleted = Some(true)) else i))
-        else
-          state
+        if (!user.deleted) state else {
+          val newIms = state.ims.map { im =>
+            if (im.user == user.id) im.copy(is_user_deleted = Some(true)) else im
+          }
+          state.copy(ims = newIms)
+        }
       case "team_join" =>
         val user = codecs.extract[User](json \ "user")
         if (userById.contains(user.id)) this else copy(users = user +: users)
