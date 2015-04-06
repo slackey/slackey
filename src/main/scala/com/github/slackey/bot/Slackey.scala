@@ -16,6 +16,9 @@ import com.github.slackey.api.{SlackApi, SlackError, SlackResponseHandler, Slack
 import com.github.slackey.codecs.responses.RtmStart
 import com.github.slackey.codecs.{isHello, isReply}
 
+/**
+ * A configurable Akka actor to interact with Slack's Real Time Messaging API.
+ */
 object Slackey {
   val DefaultNrWorkers = 4
   val DefaultPingInterval = 5.seconds
@@ -61,6 +64,11 @@ object Slackey {
   private case class SendPing(id: Long)
 }
 
+/**
+ * A configurable Akka actor to interact with Slack's Real Time Messaging API.
+ *
+ * Use the companion object to construct its Akka Props.
+ */
 class Slackey(
     token: String,
     httpConfig: AsyncHttpClientConfig,
