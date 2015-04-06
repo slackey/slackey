@@ -8,6 +8,10 @@ import com.github.slackey.bot.messages.SendMessage
 import com.github.slackey.bot.{RealTimeMessagingListener, SlackState}
 import com.github.slackey.codecs.types.SimpleMessage
 
+/**
+ * An example listener that allows users to broadcast a message to every room
+ * the bot is in by saying '!announce <message>'.
+ */
 object Announcer extends RealTimeMessagingListener {
   val command = """!announce (.+)""".r
 

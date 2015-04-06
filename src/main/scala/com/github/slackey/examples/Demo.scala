@@ -7,6 +7,11 @@ import com.ning.http.client.AsyncHttpClientConfig
 
 import com.github.slackey.bot.Slackey
 
+/**
+ * An example app with the example listeners installed.
+ *
+ * Call `main` method with a Slack API token to run.
+ */
 object Demo {
 
   private val webConfig = new AsyncHttpClientConfig.Builder()

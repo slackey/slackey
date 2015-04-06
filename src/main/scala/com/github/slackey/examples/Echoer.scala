@@ -8,6 +8,9 @@ import com.github.slackey.bot.messages.SendMessage
 import com.github.slackey.bot.{RealTimeMessagingListener, SlackState}
 import com.github.slackey.codecs.types.SimpleMessage
 
+/**
+ * An example message listener that echos basic messages along with the user's name.
+ */
 object Echoer extends RealTimeMessagingListener {
   override def onSimpleMessage(state: SlackState, message: SimpleMessage, json: JObject): Seq[SendMessage] = {
     val user = state.userById.get(message.user)
