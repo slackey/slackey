@@ -13,6 +13,9 @@ object SlackState {
     SlackState(start.self, start.team, start.users, start.channels, start.groups, start.ims)
 }
 
+/**
+ * An immutable case class containing the state of a connected Slack user.
+ */
 case class SlackState(
     self: Self,
     team: Team,
@@ -20,16 +23,34 @@ case class SlackState(
     channels: List[Channel],
     groups: List[Group],
     ims: List[IM]) {
+
+  /** Map from user ID to `User` */
   lazy val userById: Map[String, User] = users.iterator.map(u => u.id -> u).toMap
+
+  /** Map from channel ID to `Channel` */
   lazy val channelById: Map[String, Channel] = channels.iterator.map(c => c.id -> c).toMap
+
+  /** Map from group ID to `Group` */
   lazy val groupById: Map[String, Group] = groups.iterator.map(g => g.id -> g).toMap
+
+  /** Map from IM ID to `IM` */
   lazy val imById: Map[String, IM] = ims.iterator.map(i => i.id -> i).toMap
+
+  /** `Self`'s `User` */
   lazy val userSelf: User = userById(self.id)
+
+  /** Channels you're a member of */
   lazy val channelsIn: List[Channel] = channels.filter(_.is_member == Some(true))
 
+  /**
+   * Returns a copy of this state after updated by a new message from Slack.
+   */
   def update(s: String): SlackState =
     update(parse(s).asInstanceOf[JObject])
 
+  /**
+   * Returns a copy of this state after updated by a new message from Slack.
+   */
   def update(json: JObject): SlackState = {
     val JString(rtmType) = json \ "type"
     rtmType match {
@@ -166,15 +187,27 @@ case class SlackState(
     }
   }
 
+  /**
+   * Returns a copy of this state after updating a channel.
+   */
   def updateChannel(channelId: String)(update: Channel => Channel): SlackState =
     copy(channels = channels.map(c => if (c.id == channelId) update(c) else c))
 
+  /**
+   * Returns a copy of this state after updating a group.
+   */
   def updateGroup(groupId: String)(update: Group => Group): SlackState =
     copy(groups = groups.map(g => if (g.id == groupId) update(g) else g))
 
+  /**
+   * Returns a copy of this state after updating an IM.
+   */
   def updateIM(imId: String)(update: IM => IM): SlackState =
     copy(ims = ims.map(i => if (i.id == imId) update(i) else i))
 
+  /**
+   * Returns a copy of this state after updating a user.
+   */
   def updateUser(userId: String)(update: User => User): SlackState =
     copy(users = this.users.map(u => if (u.id == userId) update(u) else u))
 
