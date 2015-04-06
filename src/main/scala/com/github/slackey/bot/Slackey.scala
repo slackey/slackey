@@ -70,19 +70,19 @@ class Slackey(
     pingInterval: FiniteDuration) extends SlackeyActor {
   import Slackey._
 
-  val system = context.system
+  private val system = context.system
   import system.dispatcher
 
-  val webApi: SlackApi = {
+  private val webApi: SlackApi = {
     val config = new AsyncHttpClientConfig.Builder(httpConfig)
       .setExecutorService(httpExecutorServiceFactory())
       .build()
     SlackApi(token, config)
   }
 
-  var wsConn: Option[SlackWebSocketConnection] = None
+  private var wsConn: Option[SlackWebSocketConnection] = None
 
-  val websocketListener = new WebSocketTextListener {
+  private val websocketListener = new WebSocketTextListener {
     override def onMessage(message: String): Unit = {
       log.debug(s"Received: $message")
       self ! WebSocketMessage(message)
@@ -92,12 +92,12 @@ class Slackey(
     override def onError(t: Throwable): Unit = { self ! WebSocketThrowable(t) }
   }
 
-  val workers: ActorRef =
+  private val workers: ActorRef =
     context.actorOf(RoundRobinPool(workerCount).props(Props(classOf[Worker], listeners)), "workers")
 
-  var pinger: Option[Cancellable] = None
+  private var pinger: Option[Cancellable] = None
 
-  var connecter: Option[Cancellable] = None
+  private var connecter: Option[Cancellable] = None
 
   override def receive: Receive = disconnected
 
