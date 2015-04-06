@@ -4,6 +4,12 @@ import org.json4s._
 
 import com.github.slackey.codecs.types.{BotMessage, MeMessage, SimpleMessage}
 
+/**
+ * A listener that can respond to various Slack RTM events.
+ *
+ * By default, each method does nothing.  Overriden methods can return a
+ * `Seq[SendMessage]`, each representing a message to send over websockets.
+ */
 trait RealTimeMessagingListener {
   def onConnected(state: SlackState): Seq[SendMessage] = Seq.empty
   def onDisconnected(state: SlackState): Seq[SendMessage] = Seq.empty
