@@ -5,7 +5,7 @@ import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization
 
 package object codecs {
-  implicit val formats = Serialization.formats(NoTypeHints)
+  private implicit val formats = Serialization.formats(NoTypeHints)
 
   def extract[T](s: String)(implicit m: Manifest[T]): T =
     extract[T](parse(s))
