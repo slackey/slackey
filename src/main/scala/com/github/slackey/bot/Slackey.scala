@@ -13,7 +13,6 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
 import com.github.slackey.api.{SlackApi, SlackError, SlackResponseHandler, SlackWebSocketConnection}
-import com.github.slackey.bot.messages._
 import com.github.slackey.codecs.responses.RtmStart
 import com.github.slackey.codecs.{isHello, isReply}
 
@@ -48,6 +47,18 @@ object Slackey {
         pingInterval)
     }
   }
+
+  private case class FetchStart(attempt: Int)
+  private case class ReceivedStart(start: RtmStart, attempt: Int)
+  private case class ConnectWebSocket(start: RtmStart, attempt: Int)
+  private case class StartError(msg: String, attempt: Int)
+  private case class StartThrowable(t: Throwable, attempt: Int)
+
+  private case class WebSocketMessage(message: String)
+  private case class WebSocketThrowable(t: Throwable)
+  private case object WebSocketClose
+
+  private case class SendPing(id: Long)
 }
 
 class Slackey(
@@ -57,6 +68,8 @@ class Slackey(
     listeners: List[RealTimeMessagingListener],
     workerCount: Int,
     pingInterval: FiniteDuration) extends SlackeyActor {
+  import Slackey._
+
   val system = context.system
   import system.dispatcher
 

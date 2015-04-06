@@ -6,8 +6,6 @@ import com.github.slackey.codecs.types.{BotMessage, MeMessage, Message, SimpleMe
 import com.github.slackey.codecs.{extract, isReply}
 
 class Worker(listeners: List[RealTimeMessagingListener]) extends SlackeyActor {
-  import messages._
-
   override def receive: Receive = {
     case Connected(state) =>
       dispatchAndReply(_.onConnected(state))
