@@ -145,7 +145,7 @@ class Slackey(
       }
       webApi.rtm.start(handler = startHandler)
     case ReceivedStart(start, attempt) =>
-      log.info("Connecting via WebSockets")
+      log.info(s"Connecting WebSockets: ${start.url}")
       context.become(connecting(SlackState(start)))
       self ! ConnectWebSocket(start, attempt)
     case StartError(error, attempt) =>
