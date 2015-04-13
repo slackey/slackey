@@ -5,6 +5,7 @@ import scala.io.StdIn
 import akka.actor.ActorSystem
 import com.ning.http.client.AsyncHttpClientConfig
 
+import com.github.slackey.api.SlackApi
 import com.github.slackey.bot.Slackey
 
 /**
@@ -18,7 +19,7 @@ object Demo {
     .setConnectTimeout(10000)
     .setRequestTimeout(10000)
     .setWebSocketTimeout(60000)
-    .setAcceptAnyCertificate(true)
+    .setEnabledProtocols(SlackApi.SupportedSecureProtocols)
     .build()
 
   def main(args: Array[String]): Unit = {

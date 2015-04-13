@@ -11,7 +11,11 @@ import com.github.slackey.codecs.extract
 import com.github.slackey.codecs.responses._
 
 object SlackApi {
-  def defaultHttpClientConfig = new AsyncHttpClientConfig.Builder().build()
+  val SupportedSecureProtocols: Array[String] = Array("TLSv1.2", "SSLv3")
+
+  def defaultHttpClientConfig = new AsyncHttpClientConfig.Builder()
+    .setEnabledProtocols(SupportedSecureProtocols)
+    .build()
 
   def apply(
       token: String,
