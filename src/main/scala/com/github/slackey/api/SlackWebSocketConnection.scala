@@ -5,13 +5,15 @@ import org.json4s.JObject
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods.{compact, render}
 
+/**
+ * Slack API wrapper around a WebSocket connection.
+ */
 object SlackWebSocketConnection {
   def apply(websocket: WebSocket): SlackWebSocketConnection =
     new SlackWebSocketConnection(websocket)
 }
 
 class SlackWebSocketConnection(websocket: WebSocket) {
-
   def isOpen: Boolean = websocket.isOpen
 
   def isClosed: Boolean = !isOpen
@@ -39,6 +41,4 @@ class SlackWebSocketConnection(websocket: WebSocket) {
   def send(json: JObject): Unit = {
     websocket.sendMessage(compact(render(json)))
   }
-
-
 }

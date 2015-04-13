@@ -10,6 +10,9 @@ import org.json4s.jackson.JsonMethods._
 import com.github.slackey.codecs.extract
 import com.github.slackey.codecs.responses._
 
+/**
+ * Slack API client wrapper.
+ */
 object SlackApi {
   val SupportedSecureProtocols: Array[String] = Array("TLSv1.2", "SSLv3")
 
