@@ -5,6 +5,15 @@ A *reliable*, *fast*, *easy-to-use*, and *customizable* Slack bot.
 
 Slackey is built using [Akka actors](http://doc.akka.io/docs/akka/snapshot/scala/actors.html), which is where the "reliable" and "fast" part come in.  Once you've customized your `Slackey` actor to your liking, you just plug it into your own Actor system where it runs independently.  Under the hood, it fetches state, connects via websockets, spawns a number of worker actors to react to incoming messages, and handles Slack state updates so you can, for example, broadcast a message to all channels your bot is in quickly and reliably.
 
+### Setup
+
+SBT:
+```sbt
+scalaVersion := "2.11.5"
+
+libraryDependencies += "com.github.slackey" %% "slackey" % "0.1"
+```
+
 ### Bot Examples
 
 See [examples in the repo](https://github.com/slackey/slackey/tree/master/src/main/scala/com/github/slackey/examples).
