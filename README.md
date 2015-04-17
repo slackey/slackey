@@ -49,3 +49,53 @@ scala> api.users.list(new SlackResponseHandler[UsersList] {
 res8: com.ning.http.client.ListenableFuture[com.github.slackey.api.SlackResponse[com.github.slackey.codecs.responses.UsersList]] = ...
 <unknown>, Larry, <unknown>, <unknown>
 ```
+
+##### Supported methods
+
+The following is a list of supported Web API methods.  You can still make calls to unsupported methods by using the slightly lower level [`request` method](https://github.com/slackey/slackey/blob/624284f755dccede096fddd4e0fadfe37ee34da0/src/main/scala/com/github/slackey/api/SlackApi.scala#L175) or, better yet, submit a pull request 😅.
+
+* auth.test
+* channels.archive
+* channels.create
+* channels.history
+* channels.info
+* channels.invite
+* channels.join
+* channels.kick
+* channels.leave
+* channels.list
+* channels.mark
+* channels.rename
+* channels.setPurpose
+* channels.setTopic
+* channels.unarchive
+* chat.delete
+* chat.postMessage
+* chat.update
+* emoji.list
+* groups.archive
+* groups.close
+* groups.create
+* groups.createChild
+* groups.history
+* groups.invite
+* groups.kick
+* groups.leave
+* groups.list
+* groups.mark
+* groups.open
+* groups.rename
+* groups.setPurpose
+* groups.setTopic
+* groups.unarchive
+* im.close
+* im.history
+* im.list
+* im.mark
+* im.open
+* rtm.start
+* users.getPresence
+* users.info
+* users.list
+* users.setActive
+* users.setPresence
