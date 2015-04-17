@@ -3,7 +3,7 @@ Slackey is a library for using [Slack's Real Time Messaging API](https://api.sla
 
 Slackey is built using [Akka actors](http://doc.akka.io/docs/akka/snapshot/scala/actors.html).  Once you've customized your `Slackey` actor to your liking, you plug it into your own Actor system where it runs independently.  Behind the scenes, it fetches state, connects via websockets, spawns a number of worker actors to react to incoming messages, and handles Slack state updates so you can, for example, broadcast a message to *all* channels, including those created moments ago.
 
-### Setup
+## Setup
 
 SBT:
 ```sbt
@@ -12,11 +12,11 @@ scalaVersion := "2.11.5"
 libraryDependencies += "com.github.slackey" %% "slackey" % "0.1"
 ```
 
-### Bot Examples
+## Bot Examples
 
 See [examples in the repo](https://github.com/slackey/slackey/tree/master/src/main/scala/com/github/slackey/examples).
 
-### API Usage
+## API Usage
 
 ```scala
 /** Here's some REPL copypasta with comments **/
@@ -50,7 +50,7 @@ res8: com.ning.http.client.ListenableFuture[com.github.slackey.api.SlackResponse
 <unknown>, Larry, <unknown>, <unknown>
 ```
 
-##### Supported methods
+#### Supported methods
 
 The following is a list of supported Web API methods.  You can still make calls to unsupported methods by using the slightly lower level [`request` method](https://github.com/slackey/slackey/blob/624284f755dccede096fddd4e0fadfe37ee34da0/src/main/scala/com/github/slackey/api/SlackApi.scala#L175) or, better yet, submit a pull request 😅.
 
