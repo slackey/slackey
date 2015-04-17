@@ -8,7 +8,7 @@ startYear := Some(2015)
 
 description := "An Akka actor playing a customizable Slack bot with state handling"
 
-version := "0.1-SNAPSHOT"
+version := "0.1"
 
 licenses += "MIT" -> url("https://github.com/slackey/slackey/blob/master/LICENSE")
 
