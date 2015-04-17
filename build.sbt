@@ -8,9 +8,23 @@ startYear := Some(2015)
 
 description := "An Akka actor playing a customizable Slack bot with state handling"
 
+version := "0.1-SNAPSHOT"
+
 licenses += "MIT" -> url("https://github.com/slackey/slackey/blob/master/LICENSE")
 
-version := "0.1-SNAPSHOT"
+publishTo := {
+  val nexus = "https://oss.sonatype.org/"
+  if (version.value.trim.endsWith("SNAPSHOT"))
+    Some("snapshots" at nexus + "content/repositories/snapshots")
+  else
+    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+}
+
+publishMavenStyle := true
+
+publishArtifact in Test := false
+
+pomIncludeRepository := { x => false }
 
 scalaVersion := "2.11.5"
 
