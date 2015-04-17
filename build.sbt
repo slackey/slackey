@@ -26,6 +26,19 @@ publishArtifact in Test := false
 
 pomIncludeRepository := { x => false }
 
+pomExtra :=
+  <scm>
+    <url>git@github.com:slackey/slackey.git</url>
+    <connection>scm:git:git@github.com:slackey/slackey.git</connection>
+  </scm>
+  <developers>
+    <developer>
+      <id>larryng</id>
+      <name>Larry Ng</name>
+      <url>https://github.com/larryng</url>
+    </developer>
+  </developers>
+
 scalaVersion := "2.11.5"
 
 libraryDependencies += "com.ning" % "async-http-client" % "1.9.10"
