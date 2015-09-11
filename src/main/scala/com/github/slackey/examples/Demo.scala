@@ -19,7 +19,6 @@ object Demo {
     .setConnectTimeout(10000)
     .setRequestTimeout(10000)
     .setWebSocketTimeout(60000)
-    .setEnabledProtocols(SlackApi.SupportedSecureProtocols)
     .build()
 
   def main(args: Array[String]): Unit = {
